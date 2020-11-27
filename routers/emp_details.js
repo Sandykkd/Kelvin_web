@@ -24,7 +24,7 @@ router.get("/emp_details", function (req, res) {
   connection.connect();
   console.log("1st end");
   connection.query(
-    "SELECT * FROM employee order by checkin",
+    "SELECT * FROM employee order by uid",
     function (err, rows, fields) {
       if (err) {
         res.status(500).json({
