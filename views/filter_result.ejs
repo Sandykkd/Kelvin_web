@@ -1,0 +1,362 @@
+<html>
+
+<head>
+    <title>Kelvin</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <!--  jQuery -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+    <!-- Isolated Version of Bootstrap, not needed if your site already uses Bootstrap -->
+    <link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css" />
+
+    <!-- Bootstrap Date-Picker Plugin -->
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.1.1/bootstrap-social.css">
+
+
+</head>
+
+<body>
+    <form action="/form" method="get" id="form-home"></form>
+    <form action="/emp_details" method="get" id="form-emp"></form>
+    <form action="/employee/entire" method="get" id="form-history"></form>
+    <form action="/filter" method="get" id="form-filter"></form>
+    <form action="/back" method="get" id="back"></form>
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <a class="navbar-brand" href="#">KELVIN</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link"><label onclick="document.getElementById('form-home').submit()"
+                            id="emp_details">Home</label></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link">
+                        <label onclick="document.getElementById('form-emp').submit()" id="emp_details">Employee
+                            Details</label>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link">
+                        <label onclick="document.getElementById('form-history').submit()"
+                            id="emp_details">History</label>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link">
+                        <label onclick="document.getElementById('form-filter').submit()" id="emp_details">Advanced
+                            Search</label>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="modal" data-target="#contact_dialog">
+                        <label>Add Employee</label>
+                    </a>
+                </li>
+                
+            </ul>
+
+            <form class="form-inline my-2 my-lg-0" action="/logout" method="get" id="form-logout" style="float: right;">
+
+                <button class="btn btn-danger my-2 my-sm-0" type="submit">Logout</button>
+            </form>
+        </div>
+
+        <div class="modal fade" id="contact_dialog" role="dialog">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Employee Details </h3>
+                        <button type="button" class="close btn btn-danger" data-dismiss="modal">X</button>
+
+                    </div>
+                    <div class="modal-body">
+                        <div class="login-form">
+
+                            <form action="add_employee" enctype="multipart/form-data" method="POST" id="add">
+                                <div class="row">
+                                    <div class="col my-col">
+                                        <h6> <label>Enter Registration ID</label></h6>
+                                    </div>
+                                    <div class="col my-col">
+                                        <input class="form-control" type="text" name="uid"
+                                            placeholder="Enter Registration ID" required><br>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col my-col">
+                                        <h6> <label>Enter Name</label></h6>
+                                    </div>
+                                    <div class="col my-col">
+
+                                        <input class="form-control" type="text" name="name" placeholder="Enter Name"
+                                            required><br>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col my-col">
+                                        <h6> <label>Enter Email</label></h6>
+                                    </div>
+                                    <div class="col my-col">
+                                        <input class="form-control" type="email" name="email" placeholder="Enter Email"
+                                            required><br>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col my-col">
+                                        <h6> <label>Enter Gender</label></h6>
+                                    </div>
+                                    <div class="col my-col">
+
+                                        <input class="form-control" type="text" name="gender" placeholder="Enter Gender"
+                                            required><br>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col my-col">
+                                        <h6> <label>Enter Designation</label></h6>
+                                    </div>
+                                    <div class="col my-col">
+                                        <input class="form-control" type="text" name="designation"
+                                            placeholder="Enter Designation" required><br>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col my-col">
+                                        <h6><label>Enter Department</label></h6>
+                                    </div>
+                                    <div class=" col my-col">
+                                        <input class="form-control" type="text" name="dept"
+                                            placeholder="Enter department" required><br>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col my-col">
+                                        <h6><label>Enter Mobile</label></h6>
+                                    </div>
+                                    <div class="col my-col">
+                                        <input class="form-control" type="number" name="mobile"
+                                            placeholder="Enter mobile" required>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col my-col">
+                                        <h6><label>Select Image</label></h6>
+                                    </div>
+                                    <div class="col my-col">
+
+                                        <input class="form-control" type="file" name="photo" required
+                                            accept=".png, .jpg, .jpeg">
+
+                                    </div>
+                                </div>
+                        </div>
+
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary" data-dismiss="modal"
+                            onclick="document.getElementById('add').submit()">Add Employee</button>
+
+                    </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="jumbotron">
+        <div class="container">
+            <div class="row justify-content-center ">
+                <div class="col-12 text-center">
+                    <h1>FILTER EMPLOYEE ENTRIES</h1>
+                </div>
+            </div>
+            <br>
+            <br>
+            <div class="row table-responsive">
+                <table class="table table-bordered" style="border: 2px;">
+                    <tr class="bg-primary" style="color:white;">
+                        <td colspan="3" style="text-align: center;">Date Based Filters</td>
+                        <td colspan="3" style="text-align: center;">Employee Info Based Filters</td>
+                    </tr>
+                    <tr>
+                        <form action="/by_date" method="post">
+                            <td>
+                                Filter By Date:
+                            </td>
+                            <td>
+                                <input type="date" class="form-control" id="datesearch" name="date" defaultValue="new Date()">
+                            </td>
+                            <td>
+                                <input type="submit" id="ll" value="Search By Date" class="btn btn-secondary">
+                            </td>
+                        </form>
+                        <form action="/search_id" method="post">
+                            <td>
+                                Filter By Employee ID:
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" id="dep" name="search_id"
+                                    placeholder="Enter Employee ID">
+                            </td>
+                            <td>
+                                <input type="submit" id="ll" value="Search By Emp ID" class="btn btn-secondary">
+                            </td>
+                        </form>
+                    </tr>
+                    <tr>
+                        <form action="/process_post" method="POST">
+                            <td>
+                                Filter By Month:
+                            </td>
+                            <td>
+                                <input type="month" class="form-control" id="monthsearch" name="month" placeholder="MM/YYYY">
+                            </td>
+                            <td>
+                                <input type="submit" id="ll" value="Search By Month" class="btn btn-secondary">
+                            </td>
+                        </form>
+                        <form action="/search_email" method="post">
+                            <td>
+                                Filter by Email:
+                            </td>
+                            <td>
+                                <input type="email" class="form-control" id="dep" name="search_email" placeholder="Enter Employee E-Mail">
+                            </td>
+                            <td>
+                                <input type="submit" id="ll" value="Search By E-Mail" class="btn btn-secondary">
+                            </td>
+                        </form>
+                    </tr>
+                    <tr>
+                        <form action="/shift" method="POST">
+                            <td>
+                                Filter By Shift:
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" id="dep" name="shift"
+                                    placeholder="Enter Shift">
+                            </td>
+                            <td>
+                                <input type="submit" id="ll" value="Search By Shift" class="btn btn-secondary">
+                            </td>
+                        </form>
+                        <form action="/search_dept" method="post" id="form-3">
+                            <td>
+                                Filter By Department
+                            </td>
+                            <td>
+                                <select name="search_dept" class="form-control">
+                                    <option name="table1" value="AERONAUTICAL ENGINEERING">AERONAUTICAL
+                                        ENGINEERING</option>
+                                    <option name="table2" value="AUTOMOBILE ENGINEERING">AUTOMOBILE ENGINEERING
+                                    </option>
+                                    <option name="table3" value="COMPUTER SCIENCE AND ENGINEERING">COMPUTER
+                                        SCIENCE AND ENGINEERING
+                                    </option>
+                                    <option name="table2" value="ELECTRICAL AND ELECTRONICS ENGINEERING">
+                                        ELECTRICAL AND ELECTRONICS
+                                        ENGINEERING</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="submit" onlick="document.getElementById('form-3').submit()" id="ll"
+                                    value="Search By Department" class="btn btn-secondary">
+                            </td>
+                        </form>
+                    </tr>
+                    <tr>
+                        <form action="/range" method="POST">
+                            <td>
+                                Filter By Date Range:
+                            </td>
+                            <td>
+                                <input type="date" class="form-control" id="dep" name="from"
+                                    placeholder="Enter Shift to Filter">
+
+                            </td>
+                            <td>
+                                <input type="date" class="form-control" id="dep" name="to"
+                                    placeholder="Enter Shift to Filter">
+                            </td>
+
+
+                    </tr>
+                    <tr>
+                        <td>
+
+                        </td>
+                        <td colspan="2" style="text-align: center;">
+                            <input type="submit" id="ll" value="Search By Range" class="btn btn-secondary">
+                        </td>
+                        </form>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <br><br><br><br>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-auto">
+                    <h3>© Developed BY KCIRI & Team</h3>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+<script>
+    function getDate() {
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0!
+  var yyyy = today.getFullYear();
+
+  if(dd<10) {
+      dd = '0'+dd
+  } 
+
+  if(mm<10) {
+      mm = '0'+mm
+  } 
+
+  today = yyyy + '-' + mm + '-' + dd;
+  console.log(today);
+  document.getElementById("datesearch").value = today;
+  document.getElementById("monthsearch").value=yyyy+'-'+mm;
+}
+
+
+window.onload = function() {
+  getDate();
+};
+
+</script>
+
+</html>

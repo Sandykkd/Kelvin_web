@@ -1,0 +1,556 @@
+<html>
+
+<head>
+  <title>Kelvin</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+  <!--  jQuery -->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+
+
+
+  <!-- Isolated Version of Bootstrap, not needed if your site already uses Bootstrap -->
+  <link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css" />
+
+  <!-- Bootstrap Date-Picker Plugin -->
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.1.1/bootstrap-social.css">
+  <script>
+    /*****************************************************
+   * Paginator Function                                *
+   *****************************************************
+   * config : {
+   *     get_rows : function used to select rows to do pagination on
+   *         If no function is provided, checks for a config.table element and looks for rows in there to page
+   *
+   *     box : Empty element that will have page buttons added to it
+   *         If no config.box is provided, but a config.table is, then the page buttons will be added using the table
+   *
+   *     table : table element to be paginated
+   *         not required if a get_rows function is provided
+   *
+   *     rows_per_page : number of rows to display per page
+   *         default number is 10
+   *
+   *     page: page to display
+   *         default page is 1
+   *
+   *     box_mode: "list", "buttons", or function. determines how the page number buttons are built.
+   *         "list" builds the page index in list format and adds class "pagination" to the ul element. Meant for use with bootstrap
+   *         "buttons" builds the page index out of buttons
+   *         if this field is a function, it will be passed the config object as its only param and assumed to build the page index buttons
+   *
+   *     page_options: false or [{text: , value: }, ... ] used to set what the dropdown menu options are available, resets rows_per_page value
+   *         false prevents the options from being displayed
+   *         [{text: , value: }, ... ] allows you to customize what values can be chosen, a value of 0 will display all the table's rows.
+   *         the default setup is
+   *           [
+   *               { value: 5,  text: '5'   },
+   *               { value: 10, text: '10'  },
+   *               { value: 20, text: '20'  },
+   *               { value: 50, text: '50'  },
+   *               { value: 100,text: '100' },
+   *               { value: 0,  text: 'All' }
+   *           ]
+   *
+   *     active_class: set the class for page buttons to have when active.
+   *          defaults to "active"
+   *
+   *     disable: true or false, shows all rows of the table and hides pagination controlls if set to true.
+   *
+   *     tail_call: function to be called after paginator is done.
+   *
+   * }
+   */
+    function paginator(config) {
+      // throw errors if insufficient parameters were given
+      if (typeof config != "object")
+        throw "Paginator was expecting a config object!";
+      if (typeof config.get_rows != "function" && !(config.table instanceof Element))
+        throw "Paginator was expecting a table or get_row function!";
+
+      // get/set if things are disabled
+      if (typeof config.disable == "undefined") {
+        config.disable = false;
+      }
+
+      // get/make an element for storing the page numbers in
+      var box;
+      if (!(config.box instanceof Element)) {
+        config.box = document.createElement("div");
+      }
+      box = config.box;
+
+      // get/make function for getting table's rows
+      if (typeof config.get_rows != "function") {
+        config.get_rows = function () {
+          var table = config.table
+          var tbody = table.getElementsByTagName("tbody")[0] || table;
+
+          // get all the possible rows for paging
+          // exclude any rows that are just headers or empty
+          children = tbody.children;
+          var trs = [];
+          for (var i = 0; i < children.length; i++) {
+            if (children[i].nodeType = "tr") {
+              if (children[i].getElementsByTagName("td").length > 0) {
+                trs.push(children[i]);
+              }
+            }
+          }
+
+          return trs;
+        }
+      }
+      var get_rows = config.get_rows;
+      var trs = get_rows();
+
+      // get/set rows per page
+      if (typeof config.rows_per_page == "undefined") {
+        var selects = box.getElementsByTagName("select");
+        if (typeof selects != "undefined" && (selects.length > 0 && typeof selects[0].selectedIndex != "undefined")) {
+          config.rows_per_page = selects[0].options[selects[0].selectedIndex].value;
+        } else {
+          config.rows_per_page = 10;
+        }
+      }
+      var rows_per_page = config.rows_per_page;
+
+      // get/set current page
+      if (typeof config.page == "undefined") {
+        config.page = 1;
+      }
+      var page = config.page;
+
+      // get page count
+      var pages = (rows_per_page > 0) ? Math.ceil(trs.length / rows_per_page) : 1;
+
+      // check that page and page count are sensible values
+      if (pages < 1) {
+        pages = 1;
+      }
+      if (page > pages) {
+        page = pages;
+      }
+      if (page < 1) {
+        page = 1;
+      }
+      config.page = page;
+
+      // hide rows not on current page and show the rows that are
+      for (var i = 0; i < trs.length; i++) {
+        if (typeof trs[i]["data-display"] == "undefined") {
+          trs[i]["data-display"] = trs[i].style.display || "";
+        }
+        if (rows_per_page > 0) {
+          if (i < page * rows_per_page && i >= (page - 1) * rows_per_page) {
+            trs[i].style.display = trs[i]["data-display"];
+          } else {
+            // Only hide if pagination is not disabled
+            if (!config.disable) {
+              trs[i].style.display = "none";
+            } else {
+              trs[i].style.display = trs[i]["data-display"];
+            }
+          }
+        } else {
+          trs[i].style.display = trs[i]["data-display"];
+        }
+      }
+
+      // page button maker functions
+      config.active_class = config.active_class || "active";
+      if (typeof config.box_mode != "function" && config.box_mode != "list" && config.box_mode != "buttons") {
+        config.box_mode = "button";
+      }
+      if (typeof config.box_mode == "function") {
+        config.box_mode(config);
+      } else {
+        var make_button;
+        if (config.box_mode == "list") {
+          make_button = function (symbol, index, config, disabled, active) {
+            var li = document.createElement("li");
+            var a = document.createElement("a");
+            a.href = "#";
+            a.innerHTML = symbol;
+            a.addEventListener("click", function (event) {
+              event.preventDefault();
+              this.parentNode.click();
+              return false;
+            }, false);
+            li.appendChild(a);
+
+            var classes = [];
+            if (disabled) {
+              classes.push("disabled");
+            }
+            if (active) {
+              classes.push(config.active_class);
+            }
+            li.className = classes.join(" ");
+            li.addEventListener("click", function () {
+              if (this.className.split(" ").indexOf("disabled") == -1) {
+                config.page = index;
+                paginator(config);
+              }
+            }, false);
+            return li;
+          }
+        } else {
+          make_button = function (symbol, index, config, disabled, active) {
+            var button = document.createElement("button");
+            button.className="btn btn-outline-dark";
+            button.innerHTML = symbol;
+            button.addEventListener("click", function (event) {
+              event.preventDefault();
+              if (this.disabled != true) {
+                config.page = index;
+                paginator(config);
+              }
+              return false;
+            }, false);
+            if (disabled) {
+              button.disabled = true;
+            }
+            if (active) {
+              button.className = "btn btn-dark";
+            }
+            return button;
+          }
+        }
+
+        // make page button collection
+        var page_box = document.createElement(config.box_mode == "list" ? "ul" : "div");
+        if (config.box_mode == "list") {
+          page_box.className = "pagination";
+        }
+
+        var left = make_button("Prev", (page > 1 ? page - 1 : 1), config, (page == 1), false);
+        left.style.height="40px";
+        left.style.width="80px";
+        left.className="btn btn-dark";
+        page_box.appendChild(left);
+       
+        for (var i = 1; i <= pages; i++) {
+          var li = make_button(i, i, config, false, (page == i));
+        //  page_box.appendChild(li);
+        }
+        page_box.appendChild (document.createTextNode ("  "));
+        var right = make_button("Next", (pages > page ? page + 1 : page), config, (page == pages), false);
+        right.style.height="40px";
+        right.style.width="80px";
+        right.className="btn btn-dark";
+        page_box.appendChild(right);
+        if (box.childNodes.length) {
+          while (box.childNodes.length > 1) {
+            box.removeChild(box.childNodes[0]);
+          }
+          box.replaceChild(page_box, box.childNodes[0]);
+        } else {
+          box.appendChild(page_box);
+        }
+      }
+      var br = document.createElement("br");
+       box.appendChild(br);
+
+      // make rows per page selector
+      if (!(typeof config.page_options == "boolean" && !config.page_options)) {
+        if (typeof config.page_options == "undefined") {
+          config.page_options = [
+          { value: 10, text: '10' },
+            { value: 15, text: '15' },
+            { value: 20, text: '20' },
+            { value: 50, text: '50' },
+            { value: 100, text: '100' },
+            { value: 0, text: 'All' }
+          ];
+        }
+        var options = config.page_options;
+        var select = document.createElement("select");
+        for (var i = 0; i < options.length; i++) {
+          var o = document.createElement("option");
+          o.value = options[i].value;
+          o.text = options[i].text;
+          o.style.height="25px";
+          o.style.width="100px";
+          o.style.color="white";
+          select.appendChild(o);
+        }
+        select.value = rows_per_page;
+        select.addEventListener("change", function () {
+          config.rows_per_page = this.value;
+          paginator(config);
+        }, false);
+        select.style.height="35px";
+        select.style.width="80px";
+        select.className="btn btn-primary";
+        select.style.color="white";
+        
+        box.appendChild(select);
+      }
+      box.appendChild (document.createTextNode ("  "));
+      box.appendChild (document.createTextNode ("  "));
+      // status message
+      var stat = document.createElement("span");
+      stat.innerHTML = "On Page " + page + " of " + pages
+        + ", Showing Rows " + (((page - 1) * rows_per_page) + 1)
+        + " to " + (trs.length < page * rows_per_page || rows_per_page == 0 ? trs.length : page * rows_per_page)
+        + " of " + trs.length + "Records";
+       stat.style.color="blue";
+      box.appendChild(stat);
+
+      // hide pagination if disabled
+      if (config.disable) {
+        if (typeof box["data-display"] == "undefined") {
+          box["data-display"] = box.style.display || "";
+        }
+        box.style.display = "none";
+      } else {
+        if (box.style.display == "none") {
+          box.style.display = box["data-display"] || "";
+        }
+      }
+
+      // run tail function
+      if (typeof config.tail_call == "function") {
+        config.tail_call(config);
+      }
+
+      return box;
+    }
+
+  </script>
+ 
+
+</head>
+
+<body>
+  <form action="/form" method="get" id="form-home"></form>
+  <form action="/emp_details" method="get" id="form-emp"></form>
+  <form action="/employee/entire" method="get" id="form-history"></form>
+  <form action="/filter" method="get" id="form-filter"></form>
+  <form action="/back" method="get" id="back"></form>
+  <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <a class="navbar-brand" href="#">KELVIN</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link"><label onclick="document.getElementById('form-home').submit()" id="emp_details">Home</label></span></a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link">
+            <label onclick="document.getElementById('form-emp').submit()" id="emp_details">Employee Details</label>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link">
+            <label onclick="document.getElementById('form-history').submit()" id="emp_details">History</label>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link">
+            <label onclick="document.getElementById('form-filter').submit()" id="emp_details">Advanced Search</label>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="modal" data-target="#contact_dialog">
+            <label>Add Employee</label>
+          </a>
+        </li>
+        
+      </ul>
+
+      <form class="form-inline my-2 my-lg-0" action="/logout" method="get" id="form-logout" style="float: right;">
+
+        <button class="btn btn-primary my-2 my-sm-0" type="submit">Logout</button>
+      </form>
+    </div>
+
+    <div class="modal fade" id="contact_dialog" role="dialog">
+      <div class="modal-dialog modal-md">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Employee Details </h3>
+            <button type="button" class="close btn btn-danger" data-dismiss="modal">X</button>
+
+          </div>
+          <div class="modal-body">
+            <div class="login-form">
+              
+              <form action="add_employee" enctype="multipart/form-data" method="POST" id="add">
+                <div class="row">
+                  <div class="col my-col">
+                    <h6> <label>Enter Registration ID</label></h6>
+                  </div>
+                  <div class="col my-col">
+                    <input class="form-control" type="text" name="uid" placeholder="Enter Registration ID" required><br>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col my-col">
+                    <h6> <label>Enter Name</label></h6>
+                  </div>
+                  <div class="col my-col">
+
+                    <input class="form-control" type="text" name="name" placeholder="Enter Name" required><br>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col my-col">
+                    <h6> <label>Enter Email</label></h6>
+                  </div>
+                  <div class="col my-col">
+                    <input class="form-control" type="email" name="email" placeholder="Enter Email" required><br>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col my-col">
+                    <h6> <label>Enter Gender</label></h6>
+                  </div>
+                  <div class="col my-col">
+
+                    <input class="form-control" type="text" name="gender" placeholder="Enter Gender" required><br>
+
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col my-col">
+                    <h6> <label>Enter Designation</label></h6>
+                  </div>
+                  <div class="col my-col">
+                    <input class="form-control" type="text" name="designation" placeholder="Enter Designation" required><br>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col my-col">
+                    <h6><label>Enter Department</label></h6>
+                  </div>
+                  <div class=" col my-col">
+                    <input class="form-control" type="text" name="dept" placeholder="Enter department" required><br>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col my-col">
+                    <h6><label>Enter Mobile</label></h6>
+                  </div>
+                  <div class="col my-col">
+                    <input class="form-control" type="number" name="mobile" placeholder="Enter mobile" required>
+                  </div>
+                </div>
+                <br>
+                <div class="row">
+                  <div class="col my-col">
+                    <h6><label>Select Image</label></h6>
+                  </div>
+                  <div class="col my-col">
+
+                    <input  class="form-control" type="file" name="photo" required accept=".png, .jpg, .jpeg">
+
+                  </div>
+                </div>
+            </div>
+
+
+
+          </div>
+          <div class="modal-footer">
+            <button type="submit"  class="btn btn-primary" data-dismiss="modal"
+              onclick="document.getElementById('add').submit()">Add Employee</button>
+
+          </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="row">
+    <div class="col sm-12">
+      <h3 style="text-align: center;">Employee Database</h3>
+    </div>
+  </div>
+  <div class="row table-responsive">
+    <div class="col p-5">
+      <table id="customers" class="table table-bordered table-hover">
+        <thead>
+          <tr class="bg-primary" style="color:white;">
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Gender</th>
+            <th>Designation</th>
+            <th>Department</th>
+            <th>Mobile Number</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%if (personList.length >0){ %>
+          <% personList.forEach(function(row){ %>
+          <tr>
+            <td><%= row.uid %></td>
+            <td><%= row.name %></td>
+            <td><%= row.email %></td>
+            <td><%= row.gender%></td>
+            <td><%= row.designation%></td>
+            <td><%= row.dept%></td>
+            <td><%= row.mobile %></td>
+          </tr>
+          <% })}else{ %>
+          <tr>
+            <td colspan="6">No Record Found</td>
+
+          </tr>
+          <% } %>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col" id="box" style="text-align: center;">
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <br><br><br><br>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-auto">
+          <h6>© Designed and Developed By <span style="color:blue;font-size: large;">KC.IRI</span> & Team</h6>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    paginator({
+      table: document.getElementById("customers"),
+      box: document.getElementById("box"),
+      
+
+    });
+
+  </script>
+</body>
+
+</html>
